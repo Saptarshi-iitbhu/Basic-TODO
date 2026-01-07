@@ -1,20 +1,32 @@
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "..";
 
-export default function(req, res, next){
-    const token = req.headers.authorization;
-    const words = token.split(' ');
-    const jwtToken = words[1];
+export default function userMiddleware(req, res, next) {
+    const authHeader = req.headers.authorization;
 
-    const decoded = jwt.verify(jwtToken, JWT_SECRET);
-
-    if(decoded.username){
-        req.username = decoded.username;
-        next();
-    }
-    else{
-        res.status(403).json({
-            msg: "User doesn't exists"
+    if (!authHeader) {
+        return res.status(403).json({
+            msg: "Authorization header missing"
         });
     }
-};
+
+    const parts = authHeader.split(" ");
+
+    if (parts.length !== 2 || parts[0] !== "Bearer") {
+        return res.status(403).json({
+            msg: "Invalid authorization format"
+        });
+    }
+
+    const token = parts[1];
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.userId = decoded.userId;
+        next();
+    } catch (err) {
+        return res.status(403).json({
+            msg: "Invalid or expired token"
+        });
+    }
+}
