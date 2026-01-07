@@ -2,8 +2,8 @@ import express from "express";
 import jwt from "jsonwebtoken"
 import z from "zod";
 import bcrypt from "bcrypt";
-import { Todo, User } from "../db";
-import { JWT_SECRET } from "..";
+import { Todo, User } from "../db/index.js";
+import { JWT_SECRET } from "../config.js";
 import userMiddleware from "../middlewares/user.js"
 
 const router = express.Router();
@@ -74,6 +74,8 @@ router.post('/sign-in', async (req, res)=> {
     const token = jwt.sign({
         userId: user._id
     }, JWT_SECRET);
+
+    console.log((token));
     
     res.status(200).json({
         token

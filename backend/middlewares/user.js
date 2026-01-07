@@ -1,8 +1,12 @@
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "..";
+import { JWT_SECRET } from "../config.js";
+
 
 export default function userMiddleware(req, res, next) {
-    const authHeader = req.headers.authorization;
+    if (req.method === "OPTIONS") return next();
+    console.log("HEADERS:", req.headers);
+    const authHeader =  req.headers.authorization;
+    console.log(authHeader);
 
     if (!authHeader) {
         return res.status(403).json({

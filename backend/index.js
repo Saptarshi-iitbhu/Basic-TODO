@@ -2,12 +2,9 @@ import express from "express";
 import connectDB from "./db/db.js";
 import cors from "cors";
 import userRouter from "./routes/user.js";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { PORT } from "./config.js";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -29,4 +26,3 @@ const startServer = async () => {
 startServer();
 
 export default app;
-export const JWT_SECRET = process.env.JWT_SECRET;

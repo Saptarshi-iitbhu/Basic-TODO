@@ -4,7 +4,7 @@
   "description": "This is the todo application backend",
   "license": "ISC",
   "author": "Saptarshi Chakraborty",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
