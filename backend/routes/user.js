@@ -19,6 +19,7 @@ const todoschema = z.object({
 
 router.post("/sign-up", async (req, res) => {
     const { username, password, email } = req.body;
+    console.log("SIGNUP REQUEST:", req.body);
 
     const usercheck = userschema.safeParse(username);
     const passwordcheck = passwordschema.safeParse(password);
@@ -30,7 +31,7 @@ router.post("/sign-up", async (req, res) => {
         !emailcheck.success
     ) {
         return res.status(403).json({
-        msg: "Give correct credentials"
+            msg: "Give correct credentials"
         });
     }
 
@@ -47,28 +48,29 @@ router.post("/sign-up", async (req, res) => {
     });
 });
 
-router.post('/sign-in', async (req, res)=> {
+router.post('/sign-in', async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
+    console.log("SIGNIN REQUEST:", req.body);
 
     const user = await User.findOne({ username });
 
-    if(!user){
+    if (!user) {
         return (
             res.status(403).json({
-            msg: "Incorrect credential"
-        })
-    );
+                msg: "Incorrect credential"
+            })
+        );
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-    if(!isPasswordCorrect){
+    if (!isPasswordCorrect) {
         return (
             res.status(403).json({
-            msg: "Incorrect credential"
-        })
-    );
+                msg: "Incorrect credential"
+            })
+        );
     }
 
     const token = jwt.sign({
@@ -76,27 +78,27 @@ router.post('/sign-in', async (req, res)=> {
     }, JWT_SECRET);
 
     console.log((token));
-    
+
     res.status(200).json({
         token
     });
 });
 
-router.post('/todo', userMiddleware, async (req, res)=>{
+router.post('/todo', userMiddleware, async (req, res) => {
     const todocheck = todoschema.safeParse(req.body);
 
-    if(!todocheck.success){
-       return (
-        res.status(403).json({
-            msg: "Add valid ToDo"
-        })
-       );
+    if (!todocheck.success) {
+        return (
+            res.status(403).json({
+                msg: "Add valid ToDo"
+            })
+        );
     }
 
     const title = req.body.title;
     const description = req.body.description;
     const userId = req.userId;
-    
+
     const todo = await Todo.create({
         title: title,
         description: description,
@@ -105,8 +107,8 @@ router.post('/todo', userMiddleware, async (req, res)=>{
 
     await User.updateOne({
         _id: userId
-    },{
-        $push:{
+    }, {
+        $push: {
             todos: todo._id
         }
     });
@@ -126,13 +128,13 @@ router.get("/todo", userMiddleware, async (req, res) => {
     res.status(200).json({ todos });
 });
 
-router.delete("/todo/:todoId", userMiddleware, async(req, res) => {
+router.delete("/todo/:todoId", userMiddleware, async (req, res) => {
     const userId = req.userId;
     const todoId = req.params.todoId;
 
     const user = await User.findById(userId);
 
-    if(!user.todos.includes(todoId)){
+    if (!user.todos.includes(todoId)) {
         return (
             res.status(403).json({
                 msg: "Particular todo is not present in user's todo"
